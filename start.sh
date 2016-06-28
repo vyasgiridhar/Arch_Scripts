@@ -3,6 +3,7 @@ package_install(){
   pacman -S --noconfirm --needed ${PKG}
 
 }
+MOUNTPOINT="/mnt"
 loadkeys $KEYMAP
 package_install "nano"
 #Available countries are
@@ -18,6 +19,9 @@ country_code=India
 url="https://www.archlinux.org/mirrorlist/?country=${country_code}&use_mirror_status=on"
 
 tmpfile=$(mktemp --suffix=-mirrorlist)
+
+curl -so ${tmpfile} ${url}
+sed -i 's/^#Server/Server/g' ${tmpfile}
 
 # Get latest mirror list and save to tmpfile
 if [[ -s ${tmpfile} ]]; then
@@ -75,3 +79,19 @@ nameserver 2001:67c:28a4::
 nameserver 2002:d596:2a92:1:71:53::
 EOF
 }
+umount_partitions(){
+  mounted_partitions=(`lsblk | grep ${MOUNTPOINT} | awk '{print $7}' | sort -r`)
+  swapoff -a
+  for i in ${mounted_partitions[@]}; do
+    umount $i
+  done
+}
+umount_partitions
+echo -e "Set up Partition"
+cfdisk /dev/sda
+clear
+echo -e "Select root partition"
+partitions=(`lsblk -l | grep sda[0-9] | awk '{print $1}'`)
+select boot in "${partitions[@]}"
+echo $boot
+echo -e "setting filesystem"
