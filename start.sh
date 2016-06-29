@@ -3,7 +3,7 @@ package_install(){
   pacman -S --noconfirm --needed ${PKG}
 
 }
-MOUNTPOINT="/mnt"
+MOUNTPOINT="/mnt/"
 loadkeys $KEYMAP
 package_install "nano"
 #Available countries are
@@ -90,8 +90,22 @@ umount_partitions
 echo -e "Set up Partition"
 cfdisk /dev/sda
 clear
+umount_partitions
 echo -e "Select root partition"
+PS3="Select partition"
 partitions=(`lsblk -l | grep sda[0-9] | awk '{print $1}'`)
-select boot in "${partitions[@]}"
-echo $boot
-echo -e "setting filesystem"
+select boot in "${partitions[@]}"; do
+  echo $boot
+  echo -e "formatting to ext3 filesystem"
+  mkfs.ext4 /dev/$boot
+  break
+done;
+mkdir /mnt
+mount /dev/$boot /mnt
+pacstrap -i /mnt base base-devel parted btrfs-progs f2fs-tools ntp
+genfstab -U -p /mnt >> /mnt/etc/fstab
+mv /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
+arch-chroot /mnt
+nano /etc/locale.gen
+echo LANG=en_US.UTF-8 > /etc/locale.conf
+export LANG=en_US.UTF-8
