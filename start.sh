@@ -109,3 +109,13 @@ arch-chroot /mnt
 nano /etc/locale.gen
 echo LANG=en_US.UTF-8 > /etc/locale.conf
 export LANG=en_US.UTF-8
+ln -s /usr/share/zoneinfo/Asia/Kolkata /etc/localtime
+hwclock --systohc --utc
+pacman -Sy
+pacman -S wireless_tools wpa_supplicant wpa_actiond dialog
+passwd
+read -p "Username: " username
+username=`echo $username | tr '[:upper:]' '[:lower:]'`
+useradd -m -g users -G wheel -s /bin/bash ${username}
+passwd ${username}
+pacman -S sudo
