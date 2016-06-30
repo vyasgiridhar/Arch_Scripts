@@ -128,3 +128,22 @@ cp dotfiles/.bashrc dotfiles/.dircolors dotfiles/.dircolors_256 dotfiles/.nanorc
 cp dotfiles/.bashrc dotfiles/.dircolors dotfiles/.dircolors_256 dotfiles/.nanorc dotfiles/.yaourtrc /home/${username}/
 rm -fr dotfiles
 sed -i '/%wheel ALL=(ALL) ALL/s/^#//' /etc/sudoers
+echo "" >> /etc/sudoers
+echo 'Defaults !requiretty, !tty_tickets, !umask' >> /etc/sudoers
+echo 'Defaults visiblepw, path_info, insults, lecture=always' >> /etc/sudoers
+echo 'Defaults loglinelen=0, logfile =/var/log/sudo.log, log_year, log_host, syslog=auth' >> /etc/sudoers
+echo 'Defaults passwd_tries=3, passwd_timeout=1' >> /etc/sudoers
+echo 'Defaults env_reset, always_set_home, set_home, set_logname' >> /etc/sudoers
+echo 'Defaults !env_editor, editor="/usr/bin/vim:/usr/bin/vi:/usr/bin/nano"' >> /etc/sudoers
+echo 'Defaults timestamp_timeout=15' >> /etc/sudoers
+echo 'Defaults passprompt="[sudo] password for %u: "' >> /etc/sudoers
+pacman -S base-devel yajl namcap
+su - ${username} -c "
+  [[ ! -d aui_packages ]] && mkdir aui_packages
+  cd aui_packages
+  curl -o yaourt.tar.gz https://aur.archlinux.org/cgit/aur.git/snapshot/yaourt.tar.gz
+  tar zxvf yaourt.tar.gz
+  rm yaourt.tar.gz
+  cd yaourt
+  makepkg -csi --noconfirm
+"
