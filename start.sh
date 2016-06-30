@@ -147,3 +147,45 @@ su - ${username} -c "
   cd yaourt
   makepkg -csi --noconfirm
 "
+pacman -S bc rsync mlocate bash-completion zramswap pkgstats arch-wiki-lite zip unzip unrar p7zip lzop nfs-utils cpio avahi nss-mdns alsa-utils alsa-plugins lib32-alsa-plugins pulseaudio pulseaudio-alsa lib32-libpulse ntfs-3g dosfstools exfat-utils f2fs-tools fuse fuse-exfat autofs openssh
+
+# configuring ssh
+system_ctl enable sshd
+[[ ! -f /etc/ssh/sshd_config.aui ]] && cp -v /etc/ssh/sshd_config /etc/ssh/sshd_config.aui;
+  sed -i '/Port 22/s/^#//' /etc/ssh/sshd_config
+  sed -i '/Protocol 2/s/^#//' /etc/ssh/sshd_config
+  sed -i '/HostKey \/etc\/ssh\/ssh_host_rsa_key/s/^#//' /etc/ssh/sshd_config
+  sed -i '/HostKey \/etc\/ssh\/ssh_host_dsa_key/s/^#//' /etc/ssh/sshd_config
+  sed -i '/HostKey \/etc\/ssh\/ssh_host_ecdsa_key/s/^#//' /etc/ssh/sshd_config
+  sed -i '/KeyRegenerationInterval/s/^#//' /etc/ssh/sshd_config
+  sed -i '/ServerKeyBits/s/^#//' /etc/ssh/sshd_config
+  sed -i '/SyslogFacility/s/^#//' /etc/ssh/sshd_config
+  sed -i '/LogLevel/s/^#//' /etc/ssh/sshd_config
+  sed -i '/LoginGraceTime/s/^#//' /etc/ssh/sshd_config
+  sed -i '/PermitRootLogin/s/^#//' /etc/ssh/sshd_config
+  sed -i '/HostbasedAuthentication/s/^#//' /etc/ssh/sshd_config
+  sed -i '/StrictModes/s/^#//' /etc/ssh/sshd_config
+  sed -i '/RSAAuthentication/s/^#//' /etc/ssh/sshd_config
+  sed -i '/PubkeyAuthentication/s/^#//' /etc/ssh/sshd_config
+  sed -i '/IgnoreRhosts/s/^#//' /etc/ssh/sshd_config
+  sed -i '/PermitEmptyPasswords/s/^#//' /etc/ssh/sshd_config
+  sed -i '/AllowTcpForwarding/s/^#//' /etc/ssh/sshd_config
+  sed -i '/AllowTcpForwarding no/d' /etc/ssh/sshd_config
+  sed -i '/X11Forwarding/s/^#//' /etc/ssh/sshd_config
+  sed -i '/X11Forwarding/s/no/yes/' /etc/ssh/sshd_config
+  sed -i -e '/\tX11Forwarding yes/d' /etc/ssh/sshd_config
+  sed -i '/X11DisplayOffset/s/^#//' /etc/ssh/sshd_config
+  sed -i '/X11UseLocalhost/s/^#//' /etc/ssh/sshd_config
+  sed -i '/PrintMotd/s/^#//' /etc/ssh/sshd_config
+  sed -i '/PrintMotd/s/yes/no/' /etc/ssh/sshd_config
+  sed -i '/PrintLastLog/s/^#//' /etc/ssh/sshd_config
+  sed -i '/TCPKeepAlive/s/^#//' /etc/ssh/sshd_config
+  sed -i '/the setting of/s/^/#/' /etc/ssh/sshd_config
+  sed -i '/RhostsRSAAuthentication and HostbasedAuthentication/s/^/#/' /etc/ssh/sshd_config
+
+system_ctl enable rpcbind
+system_ctl enable nfs-client.target
+system_ctl enable remote-fs.target
+system_ctl enable systemd-readahead-collect
+system_ctl enable systemd-readahead-replay
+system_ctl enable zramswap
