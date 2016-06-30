@@ -117,5 +117,14 @@ passwd
 read -p "Username: " username
 username=`echo $username | tr '[:upper:]' '[:lower:]'`
 useradd -m -g users -G wheel -s /bin/bash ${username}
+chfn ${username}
 passwd ${username}
-pacman -S sudo
+while [[ $? -ne 0 ]]; do
+  passwd ${username}
+done
+pacman -S sudo git
+git clone https://github.com/helmuthdu/dotfiles
+cp dotfiles/.bashrc dotfiles/.dircolors dotfiles/.dircolors_256 dotfiles/.nanorc dotfiles/.yaourtrc ~/
+cp dotfiles/.bashrc dotfiles/.dircolors dotfiles/.dircolors_256 dotfiles/.nanorc dotfiles/.yaourtrc /home/${username}/
+rm -fr dotfiles
+sed -i '/%wheel ALL=(ALL) ALL/s/^#//' /etc/sudoers
