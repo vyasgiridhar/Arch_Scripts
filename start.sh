@@ -147,7 +147,7 @@ su - ${username} -c "
   cd yaourt
   makepkg -csi --noconfirm
 "
-pacman -S bc rsync mlocate bash-completion zramswap pkgstats arch-wiki-lite zip unzip unrar p7zip lzop nfs-utils cpio avahi nss-mdns alsa-utils alsa-plugins lib32-alsa-plugins pulseaudio pulseaudio-alsa lib32-libpulse ntfs-3g dosfstools exfat-utils f2fs-tools fuse fuse-exfat autofs openssh
+pacman -S bc rsync mlocate bash-completion tlp zramswap pkgstats arch-wiki-lite zip unzip unrar p7zip lzop nfs-utils cpio avahi nss-mdns alsa-utils alsa-plugins lib32-alsa-plugins pulseaudio pulseaudio-alsa lib32-libpulse ntfs-3g dosfstools exfat-utils f2fs-tools fuse fuse-exfat autofs openssh
 
 # configuring ssh
 system_ctl enable sshd
@@ -189,3 +189,18 @@ system_ctl enable remote-fs.target
 system_ctl enable systemd-readahead-collect
 system_ctl enable systemd-readahead-replay
 system_ctl enable zramswap
+system_ctl enable tlp
+system_ctl enable tlp-sleep
+system_ctl disable systemd-rfkill
+
+# XORG Libraries
+pacman -S xorg-server xorg-server-utils xorg-server-xwayland xorg-xinit xorg-xkill xf86-input-synaptics mesa xf86-input-mouse xf86-input-keyboard xf86-input-wacom xf86-input-joystick xf86-input-libinput
+modprobe uinput
+
+#FONTS
+pacman -S fontconfig-ubuntu
+pacman -Rdds freetype2-ubuntu fontconfig-ubuntu cairo-ubuntu
+
+#GRAPHICS
+pacman -S dmidecode
+pacman -S virtualbox-guest-modules-arch mesa-libgl
