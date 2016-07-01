@@ -49,18 +49,15 @@ nameserver 208.67.220.220
 # OpenDNS IPv6 nameservers
 nameserver 2620:0:ccc::2
 nameserver 2620:0:ccd::2
-
 # Google IPv4 nameservers
 nameserver 8.8.8.8
 nameserver 8.8.4.4
 # Google IPv6 nameservers
 nameserver 2001:4860:4860::8888
 nameserver 2001:4860:4860::8844
-
 # Comodo nameservers
 nameserver 8.26.56.26
 nameserver 8.20.247.20
-
 # Basic Yandex.DNS - Quick and reliable DNS
 nameserver 77.88.8.8
 nameserver 77.88.8.1
@@ -70,7 +67,6 @@ nameserver 77.88.8.2
 # Family Yandex.DNS - Without adult content
 nameserver 77.88.8.7
 nameserver 77.88.8.3
-
 # censurfridns.dk IPv4 nameservers
 nameserver 91.239.100.100
 nameserver 89.233.43.71
@@ -106,6 +102,7 @@ pacstrap -i /mnt base base-devel parted btrfs-progs f2fs-tools ntp
 genfstab -U -p /mnt >> /mnt/etc/fstab
 mv /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 arch-chroot /mnt
+setup_alt_dns
 nano /etc/locale.gen
 echo LANG=en_US.UTF-8 > /etc/locale.conf
 export LANG=en_US.UTF-8
@@ -204,3 +201,16 @@ pacman -Rdds freetype2-ubuntu fontconfig-ubuntu cairo-ubuntu
 #GRAPHICS
 pacman -S dmidecode
 pacman -S virtualbox-guest-modules-arch mesa-libgl
+
+start_module() {
+    modprobe $1
+}
+add_module() { #{{{
+  for module in $1; do
+    #check if the name of the module can be the same of the module or the given name
+    [[ $# -lt 2 ]] && local _module_name="$module" || local _module_name="$2"
+    local _has_module=`cat /etc/modules-load.d/${_module_name}.conf 2>&1 | grep $module`
+    [[ -z $_has_module ]] && echo "$module" >> /etc/modules-load.d/${_module_name}.conf
+    start_module "$module"
+  done
+}
