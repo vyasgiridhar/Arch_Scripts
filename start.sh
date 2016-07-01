@@ -3,6 +3,7 @@ package_install(){
   pacman -S --noconfirm --needed ${PKG}
 
 }
+ARCHI=`uname -m` # ARCHITECTURE
 MOUNTPOINT="/mnt/"
 loadkeys $KEYMAP
 package_install "nano"
@@ -214,3 +215,44 @@ add_module() { #{{{
     start_module "$module"
   done
 }
+replace_line() {
+  local _search=${1}
+  local _replace=${2}
+  local _filepath=${3}
+  local _filebase=`basename ${3}`
+
+  sed -e "s/${_search}/${_replace}/" ${_filepath} > /tmp/${_filebase} 2>"$LOG"
+  if [[ ${?} -eq 0 ]]; then
+    mv /tmp/${_filebase} ${_filepath}
+  else
+    cecho "failed: ${_search} - ${_filepath}"
+  fi
+}
+add_module "vboxguest vboxsf vboxvideo" "virtualbox-guest"
+
+XF86_DRIVERS=$(pacman -Qe | grep xf86-video | awk '{print $1}')
+[[ -n $XF86_DRIVERS ]] && pacman -Rcsn $XF86_DRIVERS
+pacman -S libva-vdpau-driver
+pacman -S --needed nvidia{,-utils}
+[[ ${ARCHI} == x86_64 ]] && pacman -S --needed lib32-nvidia-utils
+replace_line '*options nouveau modeset=1' '#options nouveau modeset=1' /etc/modprobe.d/modprobe.conf
+replace_line '*MODULES="nouveau"' '#MODULES="nouveau"' /etc/mkinitcpio.conf
+mkinitcpio -p linux
+nvidia-xconfig --add-argb-glx-visuals --allow-glx-with-composite --composite -no-logo --render-accel -o /etc/X11/xorg.conf.d/20-nvidia.conf;
+
+#PRINTING Libraries
+
+pacman -S cups libmtp system-config-printer gutenprint foomatic-db foomatic-db-engine foomatic-db-nonfree foomatic-filters foomatic-db-ppds foomatic-db-nonfree-ppds plip splix cups-pdf cups-filters ghostscript gsfonts
+
+config_xinitrc() {
+  #create a xinitrc file in home user directory
+  cp -fv /etc/X11/xinit/xinitrc /home/${username}/.xinitrc
+  echo -e "exec $1" >> /home/${username}/.xinitrc
+  chown -R ${username}:users /home/${username}/.xinitrc
+}
+#DE
+
+pacman -S gnome gnome-extra telepathy gedit-plugins gpaste gnome-tweak-tool gnome-power-manager gucharmap gvfs-goa deja-dup nautilus-share gdm
+systemctl enable gdm
+config_xinitrc "gnome-session"
+su - ${username} -c  "yaourt -S numix-icon-theme-git numix-circle-icon-theme-git"
