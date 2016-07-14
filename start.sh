@@ -257,3 +257,6 @@ systemctl enable gdm
 config_xinitrc "gnome-session"
 su - ${username} -c  "yaourt -S numix-icon-theme-git numix-circle-icon-theme-git"
 pacman -S networkmanager dnsmasq network-manager-applet nm-connection-editor
+echo -e "Install bootloader:\n"
+pacstrap /mnt grub os-prober
+arch_chroot "grub-install --target=i386-pc --recheck --debug /dev/sda"
