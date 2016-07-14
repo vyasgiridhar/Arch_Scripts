@@ -250,13 +250,29 @@ config_xinitrc() {
   echo -e "exec $1" >> /home/${username}/.xinitrc
   chown -R ${username}:users /home/${username}/.xinitrc
 }
-#DE
 
+arch_chroot() {
+  arch-chroot $MOUNTPOINT /bin/bash -c "${1}"
+}
+
+#DE
 pacman -S gnome gnome-extra telepathy gedit-plugins gpaste gnome-tweak-tool gnome-power-manager gucharmap gvfs-goa deja-dup nautilus-share gdm
 systemctl enable gdm
 config_xinitrc "gnome-session"
 su - ${username} -c  "yaourt -S numix-icon-theme-git numix-circle-icon-theme-git"
 pacman -S networkmanager dnsmasq network-manager-applet nm-connection-editor
+
+#GRUB
 echo -e "Install bootloader:\n"
 pacstrap /mnt grub os-prober
 arch_chroot "grub-install --target=i386-pc --recheck --debug /dev/sda"
+
+finish(){
+  cp -R `pwd` ${MOUNTPOINT}/root
+  mount_partitions
+  reboot
+}
+
+
+echo -e "\n\nThat's it.\n\n"
+finish
